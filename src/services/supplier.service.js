@@ -1,6 +1,7 @@
 import {
     findAllSuppliers,
     findSupplierByCnpj,
+    findSupplierById,
     insertSupplier
 } from "../repositories/supplier.repository.js";
 
@@ -47,4 +48,14 @@ export async function createSupplier(data) {
         createdAt: currentDate,
         updatedAt: currentDate
     });
+}
+
+export async function getSupplierById(id) {
+    const supplier = await findSupplierById(id);
+
+    if (!supplier) {
+        throw new Error("Fornecedor não encontrado.");
+    }
+
+    return supplier;
 }

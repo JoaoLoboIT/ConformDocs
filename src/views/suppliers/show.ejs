@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title><%= title %> | ConformDocs</title>
+</head>
+
+<body>
+    <main>
+        <a href="/suppliers">
+            Voltar para fornecedores
+        </a>
+
+        <h1><%= supplier.tradeName %></h1>
+
+        <dl>
+            <div>
+                <dt>Razão social</dt>
+                <dd><%= supplier.legalName %></dd>
+            </div>
+
+            <div>
+                <dt>Nome fantasia</dt>
+                <dd><%= supplier.tradeName %></dd>
+            </div>
+
+            <div>
+                <dt>CNPJ</dt>
+                <dd><%= supplier.cnpj %></dd>
+            </div>
+
+            <div>
+                <dt>E-mail</dt>
+                <dd><%= supplier.email %></dd>
+            </div>
+
+            <div>
+                <dt>Telefone</dt>
+                <dd><%= supplier.phone %></dd>
+            </div>
+
+            <div>
+                <dt>Status</dt>
+                <dd>
+                    <%= supplier.status === "ACTIVE"
+                        ? "Ativo"
+                        : "Inativo"
+                    %>
+                </dd>
+            </div>
+        </dl>
+    </main>
+</body>
+</html>

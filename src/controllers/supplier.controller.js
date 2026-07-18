@@ -1,5 +1,6 @@
 import {
     createSupplier,
+    getSupplierById,
     listSuppliers
 } from "../services/supplier.service.js";
 
@@ -35,5 +36,24 @@ export async function storeSupplier(request, response, next) {
             errorMessage: error.message,
             formData: request.body
         });
+    }
+}
+
+export async function showSupplierDetailsPage(
+    request,
+    response,
+    next
+) {
+    try {
+        const supplier = await getSupplierById(
+            request.params.id
+        );
+
+        return response.render("suppliers/show", {
+            title: supplier.tradeName,
+            supplier
+        });
+    } catch (error) {
+        return next(error);
     }
 }

@@ -1,4 +1,5 @@
 import { getDatabase } from "../config/database.js";
+import { ObjectId } from "mongodb";
 
 const COLLECTION_NAME = "suppliers";
 
@@ -31,4 +32,18 @@ export async function findSupplierByCnpj(cnpj) {
     return database
         .collection(COLLECTION_NAME)
         .findOne({ cnpj });
+}
+
+export async function findSupplierById(id) {
+    const database = getDatabase();
+
+    if (!ObjectId.isValid(id)) {
+        return null;
+    }
+
+    return database
+        .collection(COLLECTION_NAME)
+        .findOne({
+            _id: new ObjectId(id)
+        });
 }

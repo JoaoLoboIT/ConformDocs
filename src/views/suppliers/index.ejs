@@ -1,60 +1,59 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title><%= title %> | ConformDocs</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <main>
-        <a href="/">Voltar para o início</a>
+      <a href="/">Voltar para o início</a>
 
-        <header>
-            <h1>Fornecedores</h1>
+      <header>
+        <h1>Fornecedores</h1>
 
-            <a href="/suppliers/new">
-                Cadastrar fornecedor
-            </a>
-        </header>
+        <a href="/suppliers/new"> Cadastrar fornecedor </a>
+      </header>
 
-        <% if (suppliers.length === 0) { %>
-            <p>Nenhum fornecedor cadastrado.</p>
-        <% } else { %>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Razão social</th>
-                        <th>Nome fantasia</th>
-                        <th>CNPJ</th>
-                        <th>E-mail</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
+      <% if (suppliers.length === 0) { %>
+      <p>Nenhum fornecedor cadastrado.</p>
+      <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Razão social</th>
+            <th>Nome fantasia</th>
+            <th>CNPJ</th>
+            <th>E-mail</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
 
-                <tbody>
-                    <% suppliers.forEach((supplier) => { %>
-                        <tr>
-                            <td><%= supplier.legalName %></td>
-                            <td><%= supplier.tradeName %></td>
-                            <td><%= supplier.cnpj %></td>
-                            <td><%= supplier.email %></td>
-                            <td>
-                                <%= supplier.status === "ACTIVE"
-                                    ? "Ativo"
-                                    : "Inativo"
-                                %>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        <% } %>
+        <tbody>
+          <% suppliers.forEach((supplier) => { %>
+          <tr>
+            <td><%= supplier.legalName %></td>
+            <td><%= supplier.tradeName %></td>
+            <td><%= supplier.cnpj %></td>
+            <td><%= supplier.email %></td>
+            <td>
+              <%= supplier.status === "ACTIVE"
+                    ? "Ativo"
+                    : "Inativo"
+                %>
+            </td>
+            <td>
+              <a href="/suppliers/<%= supplier._id %>"> Ver detalhes </a>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% } %>
     </main>
-</body>
+  </body>
 </html>
