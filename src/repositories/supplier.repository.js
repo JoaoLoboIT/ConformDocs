@@ -47,3 +47,27 @@ export async function findSupplierById(id) {
             _id: new ObjectId(id)
         });
 }
+
+export async function updateSupplierById(id, supplierData) {
+    const database = getDatabase();
+
+    if (!ObjectId.isValid(id)) {
+        return null;
+    }
+
+    const result = await database
+        .collection(COLLECTION_NAME)
+        .findOneAndUpdate(
+            {
+                _id: new ObjectId(id)
+            },
+            {
+                $set: supplierData
+            },
+            {
+                returnDocument: "after"
+            }
+        );
+
+    return result;
+}

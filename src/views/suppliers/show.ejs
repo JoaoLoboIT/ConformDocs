@@ -1,60 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title><%= title %> | ConformDocs</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <main>
-        <a href="/suppliers">
-            Voltar para fornecedores
-        </a>
+      <a href="/suppliers"> Voltar para fornecedores </a>
 
-        <h1><%= supplier.tradeName %></h1>
+      <a href="/suppliers/<%= supplier._id %>/edit"> Editar fornecedor </a>
 
-        <dl>
-            <div>
-                <dt>Razão social</dt>
-                <dd><%= supplier.legalName %></dd>
-            </div>
+      <h1><%= supplier.tradeName %></h1>
 
-            <div>
-                <dt>Nome fantasia</dt>
-                <dd><%= supplier.tradeName %></dd>
-            </div>
+      <dl>
+        <div>
+          <dt>Razão social</dt>
+          <dd><%= supplier.legalName %></dd>
+        </div>
 
-            <div>
-                <dt>CNPJ</dt>
-                <dd><%= supplier.cnpj %></dd>
-            </div>
+        <div>
+          <dt>Nome fantasia</dt>
+          <dd><%= supplier.tradeName %></dd>
+        </div>
 
-            <div>
-                <dt>E-mail</dt>
-                <dd><%= supplier.email %></dd>
-            </div>
+        <div>
+          <dt>CNPJ</dt>
+          <dd><%= supplier.cnpj %></dd>
+        </div>
 
-            <div>
-                <dt>Telefone</dt>
-                <dd><%= supplier.phone %></dd>
-            </div>
+        <div>
+          <dt>E-mail</dt>
+          <dd><%= supplier.email %></dd>
+        </div>
 
-            <div>
-                <dt>Status</dt>
-                <dd>
-                    <%= supplier.status === "ACTIVE"
+        <div>
+          <dt>Telefone</dt>
+          <dd><%= supplier.phone %></dd>
+        </div>
+
+        <div>
+          <dt>Status</dt>
+          <dd>
+            <%= supplier.status === "ACTIVE"
                         ? "Ativo"
                         : "Inativo"
                     %>
-                </dd>
-            </div>
-        </dl>
+          </dd>
+        </div>
+      </dl>
     </main>
-</body>
+  </body>
 </html>

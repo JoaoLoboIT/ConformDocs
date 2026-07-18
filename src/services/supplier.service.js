@@ -2,7 +2,8 @@ import {
     findAllSuppliers,
     findSupplierByCnpj,
     findSupplierById,
-    insertSupplier
+    insertSupplier,
+    updateSupplierById
 } from "../repositories/supplier.repository.js";
 
 export async function listSuppliers() {
@@ -58,4 +59,52 @@ export async function getSupplierById(id) {
     }
 
     return supplier;
+}
+
+export async function updateSupplier(id, data) {
+    await getSupplierById(id);
+
+    const supplierData = {
+        legalName: data.legalName?.trim(),
+        tradeName: data.tradeName?.trim(),
+        cnpj: data.cnpj?.replace(/\D/g, ""),
+        email: data.email?.trim().toLowerCase(),
+        phone: data.phone?.replace(/\D/g, ""),
+        status: data.status
+    };
+
+    const hasEmptyField = Object.values(supplierData).some(
+        (value) => !value
+    );
+
+    if (hasEmptyField) {
+        throw new Error("Todos os campos são obrigatórios.");
+    }
+
+    if (supplierData.cnpj.length !== 14) {
+        throw new Error("O CNPJ deve possuir 14 números.");
+    }
+
+    if (!["ACTIVE", "INACTIVE"].includes(supplierData.status)) {
+        throw new Error("O status informado é inválido.");
+    }
+
+    const supplierWithSameCnpj = await findSupplierByCnpj(
+        supplierData.cnpj
+    );
+
+    const cnpjBelongsToAnotherSupplier =
+        supplierWithSameCnpj &&
+        supplierWithSameCnpj._id.toString() !== id;
+
+    if (cnpjBelongsToAnotherSupplier) {
+        throw new Error(
+            "Já existe outro fornecedor cadastrado com este CNPJ."
+        );
+    }
+
+    return updateSupplierById(id, {
+        ...supplierData,
+        updatedAt: new Date()
+    });
 }
