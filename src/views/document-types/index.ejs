@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+
+        <title><%= title %> | ConformDocs</title>
+    </head>
+
+    <body>
+        <main>
+            <a href="/">Voltar para o início</a>
+
+            <header>
+                <h1>Tipos de documento</h1>
+            </header>
+
+            <% if (documentTypes.length === 0) { %>
+                <p>Nenhum tipo de documento cadastrado.</p>
+            <% } else { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Código</th>
+                            <th>Possui vencimento</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <% documentTypes.forEach((documentType) => { %>
+                            <tr>
+                                <td><%= documentType.name %></td>
+
+                                <td><%= documentType.code %></td>
+
+                                <td>
+                                    <%= documentType.hasExpiration
+                                        ? "Sim"
+                                        : "Não"
+                                    %>
+                                </td>
+
+                                <td>
+                                    <%= documentType.status === "ACTIVE"
+                                        ? "Ativo"
+                                        : "Inativo"
+                                    %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } %>
+        </main>
+    </body>
+</html>

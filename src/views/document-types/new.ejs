@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+
+        <title><%= title %> | ConformDocs</title>
+    </head>
+
+    <body>
+        <main>
+            <a href="/document-types">
+                Voltar para tipos de documento
+            </a>
+
+            <h1>Cadastrar tipo de documento</h1>
+
+            <% if (errorMessage) { %>
+                <p role="alert">
+                    <strong>Erro:</strong>
+                    <%= errorMessage %>
+                </p>
+            <% } %>
+
+            <form action="/document-types" method="POST">
+                <div>
+                    <label for="name">Nome</label>
+
+                    <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value="<%= formData.name || '' %>"
+                        placeholder="Ex.: Nota fiscal"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label for="code">Código</label>
+
+                    <input
+                        id="code"
+                        name="code"
+                        type="text"
+                        value="<%= formData.code || '' %>"
+                        placeholder="Ex.: INVOICE"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label for="description">Descrição</label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        required
+                    ><%= formData.description || '' %></textarea>
+                </div>
+
+                <div>
+                    <label for="category">Categoria</label>
+
+                    <select
+                        id="category"
+                        name="category"
+                        required
+                    >
+                        <option value="">
+                            Selecione uma categoria
+                        </option>
+
+                        <option
+                            value="FISCAL"
+                            <%= formData.category === "FISCAL"
+                                ? "selected"
+                                : ""
+                            %>
+                        >
+                            Fiscal
+                        </option>
+
+                        <option
+                            value="NON_FISCAL"
+                            <%= formData.category === "NON_FISCAL"
+                                ? "selected"
+                                : ""
+                            %>
+                        >
+                            Não fiscal
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>
+                        <input
+                            name="hasExpiration"
+                            type="checkbox"
+                            <%= formData.hasExpiration === "on"
+                                ? "checked"
+                                : ""
+                            %>
+                        />
+
+                        Possui data de vencimento
+                    </label>
+                </div>
+
+                <div>
+                    <label>
+                        <input
+                            name="requiresPurchaseOrder"
+                            type="checkbox"
+                            <%= formData.requiresPurchaseOrder === "on"
+                                ? "checked"
+                                : ""
+                            %>
+                        />
+
+                        Exige pedido de compra
+                    </label>
+                </div>
+
+                <button type="submit">
+                    Cadastrar tipo de documento
+                </button>
+            </form>
+        </main>
+    </body>
+</html>
