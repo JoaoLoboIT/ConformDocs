@@ -8,7 +8,8 @@
     "dev": "node --env-file=.env --watch src/server.js",
     "start": "node --env-file=.env src/server.js",
     "db:indexes": "node --env-file=.env database/scripts/create-indexes.js",
-    "db:validation": "node --env-file=.env database/scripts/configure-suppliers-validation.js"
+    "db:validation": "node --env-file=.env database/scripts/configure-suppliers-validation.js",
+    "db:validation:purchase-orders": "node --env-file=.env database/scripts/configure-purchase-orders-validation.js"
   },
   "keywords": [],
   "author": "",
