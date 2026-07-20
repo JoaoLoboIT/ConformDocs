@@ -1,4 +1,5 @@
 import {
+    findActiveSuppliers,
     findAllSuppliers,
     findSupplierByCnpj,
     findSupplierById,
@@ -107,4 +108,8 @@ export async function updateSupplier(id, data) {
         ...supplierData,
         updatedAt: new Date()
     });
+}
+
+export async function listActiveSuppliers() {
+    return findActiveSuppliers();
 }

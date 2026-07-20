@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import indexRoutes from "./routes/index.routes.js";
 import supplierRoutes from "./routes/supplier.routes.js";
+import purchaseOrderRoutes from "./routes/purchase-order.routes.js";
 
 const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirectoryPath = path.dirname(currentFilePath);
@@ -23,6 +24,7 @@ export function createApp() {
 
     app.use(indexRoutes);
     app.use(supplierRoutes);
+    app.use(purchaseOrderRoutes);
 
     return app;
 }

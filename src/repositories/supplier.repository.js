@@ -71,3 +71,13 @@ export async function updateSupplierById(id, supplierData) {
 
     return result;
 }
+
+export async function findActiveSuppliers() {
+    const database = getDatabase();
+
+    return database
+        .collection(COLLECTION_NAME)
+        .find({ status: "ACTIVE" })
+        .sort({ tradeName: 1 })
+        .toArray();
+}

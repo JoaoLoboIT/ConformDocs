@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+
+        <title><%= title %> | ConformDocs</title>
+    </head>
+
+    <body>
+        <main>
+            <a href="/">Voltar para o início</a>
+
+            <header>
+                <h1>Pedidos de compra</h1>
+            </header>
+
+            <% if (purchaseOrders.length === 0) { %>
+                <p>Nenhum pedido de compra cadastrado.</p>
+            <% } else { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Fornecedor</th>
+                            <th>Valor total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <% purchaseOrders.forEach((purchaseOrder) => { %>
+                            <tr>
+                                <td><%= purchaseOrder.orderNumber %></td>
+
+                                <td>
+                                    <%= purchaseOrder.supplierSnapshot.tradeName %>
+                                </td>
+
+                                <td>
+                                    R$
+                                    <%= purchaseOrder.totalAmount.toFixed(2) %>
+                                </td>
+
+                                <td><%= purchaseOrder.status %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } %>
+        </main>
+    </body>
+</html>
