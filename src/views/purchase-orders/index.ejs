@@ -1,66 +1,53 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title><%= title %> | ConformDocs</title>
-  </head>
-
-  <body>
-    <main>
-      <a href="/">Voltar para o início</a>
-
-      <header>
-        <h1>Pedidos de compra</h1>
-      </header>
-
-      <% if (purchaseOrders.length === 0) { %>
-      <p>Nenhum pedido de compra cadastrado.</p>
-      <% } else { %>
-      <table>
-        <thead>
-          <tr>
-            <th>Número</th>
-            <th>Fornecedor</th>
-            <th>Valor total</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <% purchaseOrders.forEach((purchaseOrder) => { %>
-          <tr>
-            <td><%= purchaseOrder.orderNumber %></td>
-
-            <td>
-              <%= purchaseOrder.supplierSnapshot.tradeName %>
-            </td>
-
-            <td>
-              <%= purchaseOrder.totalAmount.toLocaleString(
-                    "pt-BR",
-                    {
-                        style: "currency",
-                        currency: "BRL"
-                    }
-                ) %>
-            </td>
-
-            <td><%= purchaseOrder.status %></td>
-
-            <td>
-              <a href="/purchase-orders/<%= purchaseOrder._id %>">
-                Ver detalhes
-              </a>
-            </td>
-          </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <% } %>
-    </main>
-  </body>
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading">
+            <div><span class="eyebrow">ERP SIMULADO</span><h1>Pedidos de compra</h1><p>Saldo autorizado usado na validação de documentos fiscais.</p></div>
+            <a class="button button--primary" href="/purchase-orders/new">+ Novo pedido</a>
+        </div>
+        <form class="filter-bar" method="GET" action="/purchase-orders">
+            <input name="search" type="search" placeholder="Número, fornecedor ou centro de custo" value="<%= filters.search %>" />
+            <select name="supplierId">
+                <option value="">Todos os fornecedores</option>
+                <% suppliers.forEach((supplier) => { %>
+                    <option value="<%= supplier._id %>" <%= filters.supplierId === supplier._id.toString() ? 'selected' : '' %>><%= supplier.tradeName %></option>
+                <% }) %>
+            </select>
+            <select name="status">
+                <option value="">Todos os status</option>
+                <% ['OPEN', 'PARTIALLY_USED', 'CLOSED', 'CANCELLED'].forEach((status) => { %>
+                    <option value="<%= status %>" <%= filters.status === status ? 'selected' : '' %>><%= statusLabel(status) %></option>
+                <% }) %>
+            </select>
+            <button class="button button--secondary" type="submit">Filtrar</button>
+            <a class="button button--text" href="/purchase-orders">Limpar</a>
+        </form>
+        <section class="panel">
+            <% if (purchaseOrders.length === 0) { %>
+                <%- include("../partials/empty-state", { heading: "Nenhum pedido encontrado", description: "Cadastre um pedido para simular os dados do ERP.", actionHref: "/purchase-orders/new", actionLabel: "Cadastrar pedido", icon: "▤" }) %>
+            <% } else { %>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>Pedido</th><th>Fornecedor</th><th>Centro de custo</th><th>Valor total</th><th>Saldo</th><th>Status</th><th></th></tr></thead>
+                        <tbody>
+                            <% purchaseOrders.forEach((purchaseOrder) => { %>
+                                <tr>
+                                    <td><strong><%= purchaseOrder.orderNumber %></strong><small><%= formatDate(purchaseOrder.issueDate) %></small></td>
+                                    <td><%= purchaseOrder.supplierSnapshot.tradeName %><small><%= formatCnpj(purchaseOrder.supplierSnapshot.cnpj) %></small></td>
+                                    <td><%= purchaseOrder.costCenter %></td>
+                                    <td><%= formatCurrency(purchaseOrder.totalAmount) %></td>
+                                    <td><strong><%= formatCurrency(purchaseOrder.remainingAmount) %></strong></td>
+                                    <td><span class="badge <%= statusClass(purchaseOrder.status) %>"><%= statusLabel(purchaseOrder.status) %></span></td>
+                                    <td><a class="table-link" href="/purchase-orders/<%= purchaseOrder._id %>">Abrir →</a></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </section>
+        <%- include("../partials/page-end") %>
+    </body>
 </html>

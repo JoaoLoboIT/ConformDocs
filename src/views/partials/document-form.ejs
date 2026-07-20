@@ -1,0 +1,57 @@
+<%
+    let initialMetadata = {};
+    try {
+        initialMetadata = formData.metadataJson ? JSON.parse(formData.metadataJson) : (formData.metadata || {});
+    } catch {
+        initialMetadata = {};
+    }
+%>
+<input type="hidden" name="metadataJson" id="metadataJson" value="{}" />
+<input type="hidden" name="fileData" id="fileData" />
+<input type="hidden" name="fileName" id="fileName" />
+<input type="hidden" name="fileMimeType" id="fileMimeType" />
+<input type="hidden" name="submissionAction" id="submissionAction" value="draft" />
+
+<div class="document-form-layout">
+    <div class="document-form-main">
+        <section class="form-section">
+            <div class="form-section__header"><div><span class="eyebrow">IDENTIFICAÇÃO</span><h2>Dados do documento</h2></div><button class="button button--neon" type="button" data-simulate-ocr>✦ Simular leitura automática</button></div>
+            <div class="form-grid">
+                <div class="form-field"><label for="typeId">Tipo de documento <span>*</span></label><select id="typeId" name="typeId" required><option value="">Selecione</option><% documentTypes.forEach((type) => { %><option value="<%= type._id %>" <%= formData.typeId === type._id.toString() ? 'selected' : '' %>><%= type.name %> — <%= type.code %></option><% }) %></select></div>
+                <div class="form-field"><label for="supplierId">Fornecedor <span>*</span></label><select id="supplierId" name="supplierId" required><option value="">Selecione</option><% suppliers.forEach((supplier) => { %><option value="<%= supplier._id %>" <%= formData.supplierId === supplier._id.toString() ? 'selected' : '' %>><%= supplier.tradeName %> — <%= formatCnpj(supplier.cnpj) %></option><% }) %></select></div>
+                <div class="form-field"><label for="documentNumber">Número do documento <span>*</span></label><input id="documentNumber" name="documentNumber" type="text" value="<%= formData.documentNumber || '' %>" required /></div>
+                <div class="form-field"><label for="source">Origem <span>*</span></label><select id="source" name="source" required><option value="SUPPLIER_PORTAL" <%= formData.source === 'SUPPLIER_PORTAL' ? 'selected' : '' %>>Portal do fornecedor</option><option value="EMAIL" <%= formData.source === 'EMAIL' ? 'selected' : '' %>>E-mail</option><option value="AUTOMATIC_CAPTURE" <%= formData.source === 'AUTOMATIC_CAPTURE' ? 'selected' : '' %>>Captura automática simulada</option><option value="MANUAL" <%= formData.source === 'MANUAL' ? 'selected' : '' %>>Cadastro manual</option></select></div>
+                <div class="form-field"><label for="issueDate">Data de emissão <span>*</span></label><input id="issueDate" name="issueDate" type="date" value="<%= formData.issueDate || '' %>" required /></div>
+                <div class="form-field" data-expiration-field><label for="expirationDate">Data de vencimento</label><input id="expirationDate" name="expirationDate" type="date" value="<%= formData.expirationDate || '' %>" /></div>
+                <div class="form-field"><label for="amount">Valor do documento</label><input id="amount" name="amount" type="number" min="0" step="0.01" value="<%= formData.amount ?? '' %>" /></div>
+                <div class="form-field" data-purchase-order-field><label for="purchaseOrderId">Pedido de compra</label><select id="purchaseOrderId" name="purchaseOrderId"><option value="">Selecione</option><% purchaseOrders.forEach((order) => { %><option value="<%= order._id %>" data-supplier-id="<%= order.supplierId %>" data-remaining="<%= order.remainingAmount %>" <%= formData.purchaseOrderId === order._id.toString() ? 'selected' : '' %>><%= order.orderNumber %> — saldo <%= formatCurrency(order.remainingAmount) %></option><% }) %></select></div>
+            </div>
+        </section>
+
+        <section class="form-section" data-custom-fields-section hidden>
+            <div class="form-section__header"><div><span class="eyebrow">CAMPOS DINÂMICOS</span><h2>Informações específicas</h2><p>Estes campos vêm da configuração do tipo de documento.</p></div></div>
+            <div class="form-grid" data-document-custom-fields></div>
+        </section>
+    </div>
+
+    <aside class="document-form-aside">
+        <section class="upload-card">
+            <span class="eyebrow">ARQUIVO ORIGINAL</span>
+            <div class="upload-dropzone" data-upload-dropzone>
+                <div class="upload-dropzone__icon">⇧</div>
+                <strong>PDF ou imagem</strong>
+                <p>Até 8 MB. O arquivo será salvo em <code>uploads/</code> e os metadados no MongoDB.</p>
+                <input id="attachmentFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp" />
+                <label class="button button--secondary" for="attachmentFile">Selecionar arquivo</label>
+                <small data-file-name><%= formData.attachment?.originalName || 'Nenhum arquivo selecionado' %></small>
+            </div>
+            <% if (formData.attachment) { %><a class="attachment-current" href="<%= formData.attachment.relativePath %>" target="_blank">Arquivo atual: <%= formData.attachment.originalName %></a><% } %>
+        </section>
+        <section class="process-hint"><span>1</span><p><strong>Salvar rascunho</strong> mantém o documento editável sem executar regras.</p></section>
+        <section class="process-hint"><span>2</span><p><strong>Receber e validar</strong> executa validações, abre divergências ou inicia o workflow.</p></section>
+    </aside>
+</div>
+
+<script type="application/json" id="documentTypesData"><%- serializeForHtml(documentTypes) %></script>
+<script type="application/json" id="suppliersData"><%- serializeForHtml(suppliers) %></script>
+<script type="application/json" id="initialMetadata"><%- serializeForHtml(initialMetadata) %></script>

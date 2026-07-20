@@ -1,24 +1,150 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
+    <%- include("partials/head", { title }) %>
+    <body>
+        <%- include("partials/page-start", { title }) %>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        <section class="hero-panel">
+            <div>
+                <span class="eyebrow eyebrow--accent">CONTROLE DE CONFORMIDADE</span>
+                <h1>Documentos sob controle.<br /><span>Decisões sem atraso.</span></h1>
+                <p>
+                    Centralize fornecedores, valide documentos, trate divergências e acompanhe a aprovação até a
+                    escrituração simulada no ERP.
+                </p>
+            </div>
+            <div class="hero-panel__actions">
+                <a class="button button--primary" href="/documents/new">Receber documento</a>
+                <a class="button button--ghost" href="/documents?status=WITH_DIVERGENCE">Ver divergências</a>
+            </div>
+        </section>
 
-    <title><%= title %></title>
-</head>
+        <section class="stats-grid" aria-label="Indicadores principais">
+            <article class="stat-card stat-card--green">
+                <span class="stat-card__label">Documentos</span>
+                <strong><%= dashboard.totalDocuments %></strong>
+                <small>Total processado</small>
+            </article>
+            <article class="stat-card stat-card--yellow">
+                <span class="stat-card__label">Aguardando aprovação</span>
+                <strong><%= dashboard.awaitingApproval %></strong>
+                <small>Fluxos pendentes</small>
+            </article>
+            <article class="stat-card stat-card--danger">
+                <span class="stat-card__label">Com divergência</span>
+                <strong><%= dashboard.withDivergence %></strong>
+                <small>Exigem tratativa</small>
+            </article>
+            <article class="stat-card">
+                <span class="stat-card__label">Vencem em 30 dias</span>
+                <strong><%= dashboard.expiringSoon %></strong>
+                <small>Monitoramento de validade</small>
+            </article>
+            <article class="stat-card">
+                <span class="stat-card__label">Fornecedores ativos</span>
+                <strong><%= dashboard.activeSuppliers %></strong>
+                <small>Base habilitada</small>
+            </article>
+            <article class="stat-card">
+                <span class="stat-card__label">Saldo em pedidos</span>
+                <strong class="stat-card__money"><%= formatCurrency(dashboard.openPurchaseOrders.remainingAmount) %></strong>
+                <small><%= dashboard.openPurchaseOrders.count %> pedido(s) aberto(s)</small>
+            </article>
+        </section>
 
-<body>
-    <main>
-        <h1><%= title %></h1>
+        <section class="dashboard-grid">
+            <article class="panel">
+                <div class="panel__header">
+                    <div>
+                        <span class="eyebrow">VISÃO OPERACIONAL</span>
+                        <h2>Documentos por status</h2>
+                    </div>
+                    <a href="/documents">Ver todos</a>
+                </div>
 
-        <p>
-            Sistema de gestão, validação e aprovação
-            de documentos de fornecedores.
-        </p>
-    </main>
-</body>
+                <% if (dashboard.statusDistribution.length === 0) { %>
+                    <%- include("partials/empty-state", {
+                        heading: "Ainda não há documentos",
+                        description: "Receba o primeiro documento para alimentar os indicadores.",
+                        actionHref: "/documents/new",
+                        actionLabel: "Receber documento",
+                        icon: "◆"
+                    }) %>
+                <% } else { %>
+                    <div class="status-bars">
+                        <% dashboard.statusDistribution.forEach((item) => { %>
+                            <div class="status-bar">
+                                <div class="status-bar__meta">
+                                    <span><%= statusLabel(item.status) %></span>
+                                    <strong><%= item.count %></strong>
+                                </div>
+                                <div class="status-bar__track">
+                                    <span style="width: <%= item.percentage %>%"></span>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </article>
+
+            <article class="panel">
+                <div class="panel__header">
+                    <div>
+                        <span class="eyebrow">RASTREABILIDADE</span>
+                        <h2>Atividade recente</h2>
+                    </div>
+                </div>
+                <% if (dashboard.recentActivity.length === 0) { %>
+                    <p class="muted">As próximas ações aparecerão aqui.</p>
+                <% } else { %>
+                    <div class="activity-list">
+                        <% dashboard.recentActivity.forEach((activity) => { %>
+                            <div class="activity-item">
+                                <span class="activity-item__dot"></span>
+                                <div>
+                                    <strong><%= activity.description %></strong>
+                                    <small><%= formatDateTime(activity.occurredAt) %> • <%= activity.actor.name %></small>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel__header">
+                <div>
+                    <span class="eyebrow">ÚLTIMAS ENTRADAS</span>
+                    <h2>Documentos recentes</h2>
+                </div>
+                <a href="/documents/new">+ Novo documento</a>
+            </div>
+            <% if (dashboard.recentDocuments.length === 0) { %>
+                <p class="muted">Nenhum documento recebido até o momento.</p>
+            <% } else { %>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Documento</th><th>Tipo</th><th>Fornecedor</th><th>Valor</th><th>Status</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            <% dashboard.recentDocuments.forEach((document) => { %>
+                                <tr>
+                                    <td><strong><%= document.documentNumber %></strong></td>
+                                    <td><%= document.typeSnapshot.name %></td>
+                                    <td><%= document.supplierSnapshot.tradeName %></td>
+                                    <td><%= document.amount !== null ? formatCurrency(document.amount) : "—" %></td>
+                                    <td><span class="badge <%= statusClass(document.status) %>"><%= statusLabel(document.status) %></span></td>
+                                    <td><a class="table-link" href="/documents/<%= document._id %>">Abrir →</a></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </section>
+
+        <%- include("partials/page-end") %>
+    </body>
 </html>

@@ -1,18 +1,28 @@
 {
   "name": "conformdocs",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Sistema web de gestão, validação, aprovação e controle de documentos de fornecedores com MongoDB.",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --env-file=.env --watch src/server.js",
     "start": "node --env-file=.env src/server.js",
+    "test": "node --test",
+    "format": "prettier --write \"src/**/*.js\" \"src/public/**/*.css\" \"database/**/*.js\" \"tests/**/*.js\" \"*.json\" \"*.md\" \"docs/**/*.md\"",
+    "format:check": "prettier --check \"src/**/*.js\" \"src/public/**/*.css\" \"database/**/*.js\" \"tests/**/*.js\" \"*.json\" \"*.md\" \"docs/**/*.md\"",
     "db:indexes": "node --env-file=.env database/scripts/create-indexes.js",
-    "db:validation": "node --env-file=.env database/scripts/configure-suppliers-validation.js",
-    "db:validation:purchase-orders": "node --env-file=.env database/scripts/configure-purchase-orders-validation.js"
+    "db:setup": "node --env-file=.env database/scripts/setup-database.js",
+    "db:seed": "node --env-file=.env database/seeds/seed.js",
+    "db:init": "npm run db:setup && npm run db:seed",
+    "db:seed:large": "node --env-file=.env database/seeds/seed-large.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "mongodb",
+    "nosql",
+    "document-management",
+    "express",
+    "ejs"
+  ],
+  "author": "João Pedro Ferreira Lobo",
   "license": "ISC",
   "type": "module",
   "dependencies": {

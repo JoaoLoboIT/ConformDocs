@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <%- include("../partials/page-start", { title }) %>
+
+        <div class="page-heading document-heading">
+            <div>
+                <a class="back-link" href="/documents">← Documentos</a>
+                <span class="eyebrow"><%= document.typeSnapshot.code %> • <%= document.typeSnapshot.category === 'FISCAL' ? 'DOCUMENTO FISCAL' : 'DOCUMENTO NÃO FISCAL' %></span>
+                <h1><%= document.documentNumber %></h1>
+                <p><%= document.typeSnapshot.name %> enviado por <%= document.supplierSnapshot.tradeName %>.</p>
+            </div>
+            <div class="heading-actions">
+                <span class="badge badge--large <%= statusClass(document.status) %>"><%= statusLabel(document.status) %></span>
+                <% if (!['COMPLETED'].includes(document.status)) { %>
+                    <a class="button button--ghost" href="/documents/<%= document._id %>/edit">Editar</a>
+                <% } %>
+            </div>
+        </div>
+
+        <section class="detail-grid detail-grid--four">
+            <article class="panel detail-card"><span>Valor</span><strong><%= document.amount !== null ? formatCurrency(document.amount) : '—' %></strong></article>
+            <article class="panel detail-card"><span>Emissão</span><strong><%= formatDate(document.issueDate) %></strong></article>
+            <article class="panel detail-card"><span>Vencimento</span><strong><%= formatDate(document.expirationDate) %></strong></article>
+            <article class="panel detail-card"><span>Origem</span><strong><%= sourceLabel(document.source) %></strong></article>
+        </section>
+
+        <section class="document-actions panel">
+            <div>
+                <span class="eyebrow">PRÓXIMA AÇÃO</span>
+                <% if (document.status === 'DRAFT') { %><h2>Rascunho aguardando envio</h2><p>Edite o documento e use “Salvar e revalidar” para iniciar o processamento.</p><% } %>
+                <% if (document.status === 'WITH_DIVERGENCE') { %><h2>Trate as divergências</h2><p>Corrija os dados, resolva as pendências e execute uma nova validação.</p><% } %>
+                <% if (document.status === 'AWAITING_APPROVAL') { %><h2>Aprovação pendente</h2><p>A etapa atual pertence a <strong><%= document.workflow.steps[document.workflow.currentStepIndex]?.department %></strong>.</p><% } %>
+                <% if (document.status === 'APPROVED') { %><h2>Pronto para escrituração</h2><p>Simule o envio ao ERP e conclua o processo.</p><% } %>
+                <% if (document.status === 'REJECTED') { %><h2>Documento rejeitado</h2><p>Edite os dados para corrigir o documento e reenviá-lo.</p><% } %>
+                <% if (document.status === 'COMPLETED') { %><h2>Processo concluído</h2><p>Documento escriturado com protocolo <strong><%= document.erpIntegration.protocol %></strong>.</p><% } %>
+            </div>
+            <div class="document-actions__buttons">
+                <% if (document.status === 'WITH_DIVERGENCE') { %>
+                    <form action="/documents/<%= document._id %>/revalidate" method="POST"><button class="button button--primary" type="submit">Executar nova validação</button></form>
+                <% } %>
+                <% if (document.status === 'AWAITING_APPROVAL') { %>
+                    <details class="action-popover"><summary class="button button--primary">Aprovar etapa</summary><form action="/documents/<%= document._id %>/approve" method="POST"><label>Observação</label><textarea name="note" rows="3" placeholder="Comentário opcional"></textarea><button class="button button--primary" type="submit">Confirmar aprovação</button></form></details>
+                    <details class="action-popover"><summary class="button button--danger">Rejeitar</summary><form action="/documents/<%= document._id %>/reject" method="POST"><label>Motivo <span>*</span></label><textarea name="note" rows="3" required></textarea><button class="button button--danger" type="submit">Confirmar rejeição</button></form></details>
+                <% } %>
+                <% if (document.status === 'APPROVED') { %>
+                    <form action="/documents/<%= document._id %>/integrate" method="POST" data-confirm="Simular a escrituração no ERP? Esta ação consumirá o saldo do pedido de compra."><button class="button button--primary" type="submit">Enviar ao ERP simulado</button></form>
+                <% } %>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+            <article class="panel">
+                <div class="panel__header"><div><span class="eyebrow">DADOS ESTRUTURADOS</span><h2>Informações do documento</h2></div></div>
+                <dl class="definition-grid definition-grid--single">
+                    <div><dt>Fornecedor</dt><dd><a href="/suppliers/<%= document.supplierId %>"><%= document.supplierSnapshot.tradeName %></a></dd></div>
+                    <div><dt>CNPJ</dt><dd><%= formatCnpj(document.supplierSnapshot.cnpj) %></dd></div>
+                    <div><dt>Pedido de compra</dt><dd><% if (document.purchaseOrderId) { %><a href="/purchase-orders/<%= document.purchaseOrderId %>"><%= document.purchaseOrderSnapshot.orderNumber %></a><% } else { %>Não exigido<% } %></dd></div>
+                    <% Object.entries(document.metadata || {}).forEach(([key, value]) => { %>
+                        <div><dt><%= document.typeSnapshot.customFields?.find((field) => field.key === key)?.label || key %></dt><dd><%= value || '—' %></dd></div>
+                    <% }) %>
+                </dl>
+            </article>
+            <article class="panel attachment-panel">
+                <div class="panel__header"><div><span class="eyebrow">ARQUIVO</span><h2>Documento original</h2></div></div>
+                <% if (document.attachment) { %>
+                    <div class="attachment-preview"><span><%= document.attachment.mimeType === 'application/pdf' ? 'PDF' : 'IMG' %></span><div><strong><%= document.attachment.originalName %></strong><small><%= Math.ceil(document.attachment.sizeBytes / 1024) %> KB • enviado em <%= formatDateTime(document.attachment.uploadedAt) %></small></div></div>
+                    <a class="button button--secondary button--full" href="<%= document.attachment.relativePath %>" target="_blank">Abrir arquivo</a>
+                <% } else { %>
+                    <p class="muted">Nenhum arquivo foi anexado.</p>
+                <% } %>
+                <div class="erp-card"><span class="badge <%= statusClass(document.erpIntegration.status) %>"><%= statusLabel(document.erpIntegration.status) %></span><strong>Integração com ERP</strong><p><%= document.erpIntegration.protocol ? `Protocolo ${document.erpIntegration.protocol}` : 'Aguardando conclusão das etapas.' %></p></div>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel__header"><div><span class="eyebrow">MOTOR DE REGRAS</span><h2>Validações automáticas</h2></div><span><%= document.validations?.filter((item) => item.result === 'PASSED').length || 0 %>/<%= document.validations?.length || 0 %> aprovadas</span></div>
+            <% if (!document.validations?.length) { %><p class="muted">As validações ainda não foram executadas.</p><% } else { %>
+                <div class="validation-grid">
+                    <% document.validations.forEach((validation) => { %>
+                        <article class="validation-card validation-card--<%= validation.result.toLowerCase() %>">
+                            <div><span class="validation-card__icon"><%= validation.result === 'PASSED' ? '✓' : validation.result === 'FAILED' ? '!' : '–' %></span><div><strong><%= validation.label %></strong><p><%= validation.message %></p></div></div>
+                            <span class="badge <%= statusClass(validation.result) %>"><%= statusLabel(validation.result) %></span>
+                        </article>
+                    <% }) %>
+                </div>
+            <% } %>
+        </section>
+
+        <section class="panel">
+            <div class="panel__header"><div><span class="eyebrow">TRATATIVA</span><h2>Divergências</h2></div><span><%= document.divergences?.filter((item) => item.status === 'OPEN').length || 0 %> aberta(s)</span></div>
+            <% if (!document.divergences?.length) { %><p class="muted">Nenhuma divergência registrada.</p><% } else { %>
+                <div class="divergence-list">
+                    <% document.divergences.forEach((divergence) => { %>
+                        <article class="divergence-card <%= divergence.status === 'RESOLVED' ? 'is-resolved' : '' %>">
+                            <div class="divergence-card__header"><div><span class="badge <%= statusClass(divergence.status) %>"><%= statusLabel(divergence.status) %></span><h3><%= divergence.title %></h3></div><span><%= divergence.department %> • <%= divergence.priority %></span></div>
+                            <p><%= divergence.description %></p>
+                            <% if (divergence.resolutionNote) { %><div class="resolution-note"><strong>Resolução:</strong> <%= divergence.resolutionNote %></div><% } %>
+                            <% if (divergence.comments?.length) { %><div class="comment-list"><% divergence.comments.forEach((comment) => { %><div><strong><%= comment.author %></strong><p><%= comment.text %></p><small><%= formatDateTime(comment.createdAt) %></small></div><% }) %></div><% } %>
+                            <% if (divergence.status === 'OPEN') { %>
+                                <div class="divergence-card__forms">
+                                    <form action="/documents/<%= document._id %>/divergences/<%= divergence._id %>/comments" method="POST"><input name="comment" type="text" placeholder="Adicionar comentário" required /><button class="button button--secondary" type="submit">Comentar</button></form>
+                                    <form action="/documents/<%= document._id %>/divergences/<%= divergence._id %>/resolve" method="POST"><input name="resolutionNote" type="text" placeholder="Como o problema foi resolvido?" required /><button class="button button--primary" type="submit">Marcar como resolvida</button></form>
+                                </div>
+                            <% } %>
+                        </article>
+                    <% }) %>
+                </div>
+            <% } %>
+        </section>
+
+        <section class="dashboard-grid">
+            <article class="panel">
+                <div class="panel__header"><div><span class="eyebrow">WORKFLOW</span><h2>Etapas de aprovação</h2></div></div>
+                <% if (!document.workflow?.steps?.length) { %><p class="muted">O workflow será iniciado após a validação.</p><% } else { %>
+                    <div class="workflow-steps">
+                        <% document.workflow.steps.forEach((step, index) => { %>
+                            <div class="workflow-step <%= step.status === 'PENDING' ? 'is-current' : '' %>"><span><%= index + 1 %></span><div><strong><%= step.label %></strong><p><%= step.department %></p><small><span class="badge <%= statusClass(step.status) %>"><%= statusLabel(step.status) %></span> <%= step.decidedAt ? formatDateTime(step.decidedAt) : '' %></small></div></div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </article>
+            <article class="panel">
+                <div class="panel__header"><div><span class="eyebrow">HISTÓRICO</span><h2>Linha do tempo</h2></div></div>
+                <div class="timeline"><% document.statusHistory.slice().reverse().forEach((history) => { %><div class="timeline__item"><span></span><div><strong><%= statusLabel(history.status) %></strong><p><%= history.note || 'Status atualizado.' %></p><small><%= formatDateTime(history.changedAt) %></small></div></div><% }) %></div>
+            </article>
+        </section>
+
+        <% if (['DRAFT', 'REJECTED'].includes(document.status)) { %>
+            <section class="panel danger-zone"><div><span class="eyebrow">ZONA DE RISCO</span><h2>Excluir documento</h2><p>A exclusão é permitida somente antes da aprovação.</p></div><form action="/documents/<%= document._id %>/delete" method="POST" data-confirm="Deseja excluir este documento definitivamente?"><button class="button button--danger" type="submit">Excluir documento</button></form></section>
+        <% } %>
+
+        <%- include("../partials/page-end") %>
+    </body>
+</html>

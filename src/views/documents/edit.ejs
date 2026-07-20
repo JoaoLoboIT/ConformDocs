@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading"><div><a class="back-link" href="/documents/<%= formData._id %>">← Voltar ao documento</a><h1>Editar documento</h1><p>Corrija dados e reenvie para validação quando estiver pronto.</p></div></div>
+        <form class="document-form" action="/documents/<%= formData._id %>/edit" method="POST" data-document-form>
+            <%- include("../partials/document-form", { formData, documentTypes, suppliers, purchaseOrders }) %>
+            <div class="form-actions form-actions--sticky"><a class="button button--ghost" href="/documents/<%= formData._id %>">Cancelar</a><button class="button button--secondary" type="submit" value="draft" data-submit-action="draft">Salvar rascunho</button><button class="button button--primary" type="submit" value="process" data-submit-action="process">Salvar e revalidar</button></div>
+        </form>
+        <script src="/js/document-form.js" defer></script>
+        <%- include("../partials/page-end") %>
+    </body>
+</html>

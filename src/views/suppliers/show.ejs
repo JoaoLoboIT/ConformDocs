@@ -1,57 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title><%= title %> | ConformDocs</title>
-  </head>
-
-  <body>
-    <main>
-      <a href="/suppliers"> Voltar para fornecedores </a>
-
-      <a href="/suppliers/<%= supplier._id %>/edit"> Editar fornecedor </a>
-
-      <h1><%= supplier.tradeName %></h1>
-
-      <dl>
-        <div>
-          <dt>Razão social</dt>
-          <dd><%= supplier.legalName %></dd>
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading">
+            <div><a class="back-link" href="/suppliers">← Fornecedores</a><span class="eyebrow">PERFIL DO FORNECEDOR</span><h1><%= supplier.tradeName %></h1><p><%= supplier.legalName %></p></div>
+            <a class="button button--primary" href="/suppliers/<%= supplier._id %>/edit">Editar fornecedor</a>
         </div>
-
-        <div>
-          <dt>Nome fantasia</dt>
-          <dd><%= supplier.tradeName %></dd>
-        </div>
-
-        <div>
-          <dt>CNPJ</dt>
-          <dd><%= supplier.cnpj %></dd>
-        </div>
-
-        <div>
-          <dt>E-mail</dt>
-          <dd><%= supplier.email %></dd>
-        </div>
-
-        <div>
-          <dt>Telefone</dt>
-          <dd><%= supplier.phone %></dd>
-        </div>
-
-        <div>
-          <dt>Status</dt>
-          <dd>
-            <%= supplier.status === "ACTIVE"
-                        ? "Ativo"
-                        : "Inativo"
-                    %>
-          </dd>
-        </div>
-      </dl>
-    </main>
-  </body>
+        <section class="detail-grid">
+            <article class="panel detail-card"><span>CNPJ</span><strong><%= formatCnpj(supplier.cnpj) %></strong></article>
+            <article class="panel detail-card"><span>Status</span><strong><span class="badge <%= statusClass(supplier.status) %>"><%= statusLabel(supplier.status) %></span></strong></article>
+            <article class="panel detail-card"><span>Última atualização</span><strong><%= formatDateTime(supplier.updatedAt) %></strong></article>
+        </section>
+        <section class="panel">
+            <div class="panel__header"><div><span class="eyebrow">CONTATO</span><h2>Dados cadastrais</h2></div></div>
+            <dl class="definition-grid">
+                <div><dt>E-mail</dt><dd><a href="mailto:<%= supplier.email %>"><%= supplier.email %></a></dd></div>
+                <div><dt>Telefone</dt><dd><%= formatPhone(supplier.phone) %></dd></div>
+                <div><dt>Contato principal</dt><dd><%= supplier.contactName || 'Não informado' %></dd></div>
+                <div><dt>Cadastrado em</dt><dd><%= formatDateTime(supplier.createdAt) %></dd></div>
+            </dl>
+        </section>
+        <%- include("../partials/page-end") %>
+    </body>
 </html>

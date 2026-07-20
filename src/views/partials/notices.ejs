@@ -1,0 +1,23 @@
+<% if (successMessage) { %>
+    <div class="alert alert--success" role="status" data-alert>
+        <span>✓</span>
+        <p><%= successMessage %></p>
+        <button type="button" data-alert-close aria-label="Fechar">×</button>
+    </div>
+<% } %>
+
+<% if (globalErrorMessage) { %>
+    <div class="alert alert--danger" role="alert" data-alert>
+        <span>!</span>
+        <p><%= globalErrorMessage %></p>
+        <button type="button" data-alert-close aria-label="Fechar">×</button>
+    </div>
+<% } %>
+
+<% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+    <div class="alert alert--danger" role="alert" data-alert>
+        <span>!</span>
+        <p><%= errorMessage %></p>
+        <button type="button" data-alert-close aria-label="Fechar">×</button>
+    </div>
+<% } %>

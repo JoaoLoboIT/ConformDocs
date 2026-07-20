@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <div class="error-screen"><div class="error-screen__code"><%= statusCode %></div><span class="eyebrow">NÃO FOI POSSÍVEL CONCLUIR</span><h1><%= title %></h1><p><%= errorMessage %></p><a class="button button--primary" href="/">Voltar ao dashboard</a></div>
+    </body>
+</html>

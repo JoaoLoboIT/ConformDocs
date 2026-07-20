@@ -1,0 +1,17 @@
+<header class="topbar">
+    <button class="icon-button mobile-menu-button" type="button" data-sidebar-toggle aria-label="Abrir menu">☰</button>
+    <div class="topbar__context">
+        <span class="eyebrow">GESTÃO DOCUMENTAL</span>
+        <strong><%= title %></strong>
+    </div>
+    <div class="topbar__actions">
+        <a class="quick-action" href="/documents/new">+ Receber documento</a>
+        <div class="user-chip">
+            <span class="user-chip__avatar"><%= currentUser.name.charAt(0) %></span>
+            <span>
+                <strong><%= currentUser.name %></strong>
+                <small><%= currentUser.role %></small>
+            </span>
+        </div>
+    </div>
+</header>

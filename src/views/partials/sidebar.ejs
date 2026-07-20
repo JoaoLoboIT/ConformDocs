@@ -1,0 +1,36 @@
+<aside class="sidebar" id="sidebar">
+    <a class="brand" href="/" aria-label="ConformDocs - início">
+        <span class="brand__mark">C</span>
+        <span class="brand__text">
+            <strong>Conform</strong><em>Docs</em>
+        </span>
+    </a>
+
+    <nav class="sidebar__nav" aria-label="Navegação principal">
+        <a class="nav-link <%= currentPath === '/' ? 'is-active' : '' %>" href="/">
+            <span class="nav-link__icon">▦</span>
+            <span>Dashboard</span>
+        </a>
+        <a class="nav-link <%= currentPath.startsWith('/documents') ? 'is-active' : '' %>" href="/documents">
+            <span class="nav-link__icon">◆</span>
+            <span>Documentos</span>
+        </a>
+        <a class="nav-link <%= currentPath.startsWith('/suppliers') ? 'is-active' : '' %>" href="/suppliers">
+            <span class="nav-link__icon">◉</span>
+            <span>Fornecedores</span>
+        </a>
+        <a class="nav-link <%= currentPath.startsWith('/purchase-orders') ? 'is-active' : '' %>" href="/purchase-orders">
+            <span class="nav-link__icon">▤</span>
+            <span>Pedidos de compra</span>
+        </a>
+        <a class="nav-link <%= currentPath.startsWith('/document-types') ? 'is-active' : '' %>" href="/document-types">
+            <span class="nav-link__icon">⚙</span>
+            <span>Tipos de documento</span>
+        </a>
+    </nav>
+
+    <div class="sidebar__footer">
+        <span class="system-dot"></span>
+        <span>MongoDB conectado</span>
+    </div>
+</aside>

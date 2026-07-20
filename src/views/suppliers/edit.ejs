@@ -1,127 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8" />
-
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-        />
-
-        <title><%= title %> | ConformDocs</title>
-    </head>
-
+    <%- include("../partials/head", { title }) %>
     <body>
-        <main>
-            <a href="/suppliers/<%= formData._id %>">
-                Voltar para o fornecedor
-            </a>
-
-            <h1>Editar fornecedor</h1>
-
-            <% if (errorMessage) { %>
-                <p role="alert">
-                    <strong>Erro:</strong>
-                    <%= errorMessage %>
-                </p>
-            <% } %>
-
-            <form
-                action="/suppliers/<%= formData._id %>/edit"
-                method="POST"
-            >
-                <div>
-                    <label for="legalName">Razão social</label>
-
-                    <input
-                        id="legalName"
-                        name="legalName"
-                        type="text"
-                        value="<%= formData.legalName || '' %>"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label for="tradeName">Nome fantasia</label>
-
-                    <input
-                        id="tradeName"
-                        name="tradeName"
-                        type="text"
-                        value="<%= formData.tradeName || '' %>"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label for="cnpj">CNPJ</label>
-
-                    <input
-                        id="cnpj"
-                        name="cnpj"
-                        type="text"
-                        inputmode="numeric"
-                        maxlength="18"
-                        value="<%= formData.cnpj || '' %>"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label for="email">E-mail</label>
-
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value="<%= formData.email || '' %>"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label for="phone">Telefone</label>
-
-                    <input
-                        id="phone"
-                        name="phone"
-                        type="text"
-                        value="<%= formData.phone || '' %>"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label for="status">Status</label>
-
-                    <select id="status" name="status" required>
-                        <option
-                            value="ACTIVE"
-                            <%= formData.status === "ACTIVE"
-                                ? "selected"
-                                : ""
-                            %>
-                        >
-                            Ativo
-                        </option>
-
-                        <option
-                            value="INACTIVE"
-                            <%= formData.status === "INACTIVE"
-                                ? "selected"
-                                : ""
-                            %>
-                        >
-                            Inativo
-                        </option>
-                    </select>
-                </div>
-
-                <button type="submit">
-                    Salvar alterações
-                </button>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading"><div><a class="back-link" href="/suppliers/<%= formData._id %>">← Voltar ao fornecedor</a><h1>Editar fornecedor</h1><p>Atualize os dados cadastrais e a disponibilidade da empresa.</p></div></div>
+        <section class="panel form-panel">
+            <form action="/suppliers/<%= formData._id %>/edit" method="POST">
+                <%- include("../partials/supplier-form", { formData, showStatus: true }) %>
+                <div class="form-actions"><a class="button button--ghost" href="/suppliers/<%= formData._id %>">Cancelar</a><button class="button button--primary" type="submit">Salvar alterações</button></div>
             </form>
-        </main>
+        </section>
+        <%- include("../partials/page-end") %>
     </body>
 </html>

@@ -1,0 +1,42 @@
+<%
+    let initialCustomFields = formData.customFields || [];
+    if (formData.customFieldsJson) {
+        try { initialCustomFields = JSON.parse(formData.customFieldsJson); } catch { initialCustomFields = []; }
+    }
+    let selectedRules = formData.validationRules || [];
+    if (!Array.isArray(selectedRules)) selectedRules = [selectedRules];
+    selectedRules = selectedRules.map((rule) => typeof rule === "string" ? rule : rule.code);
+%>
+<div class="form-grid">
+    <div class="form-field"><label for="name">Nome <span>*</span></label><input id="name" name="name" type="text" value="<%= formData.name || '' %>" placeholder="Nota fiscal eletrônica" required /></div>
+    <div class="form-field"><label for="code">Código <span>*</span></label><input id="code" name="code" type="text" value="<%= formData.code || '' %>" placeholder="NFE" required /></div>
+    <div class="form-field"><label for="category">Categoria <span>*</span></label><select id="category" name="category" required><option value="">Selecione</option><option value="FISCAL" <%= formData.category === 'FISCAL' ? 'selected' : '' %>>Fiscal</option><option value="NON_FISCAL" <%= formData.category === 'NON_FISCAL' ? 'selected' : '' %>>Não fiscal</option></select></div>
+    <% if (typeof isEdit !== 'undefined' && isEdit) { %>
+        <div class="form-field"><label for="status">Status</label><select id="status" name="status"><option value="ACTIVE" <%= formData.status === 'ACTIVE' ? 'selected' : '' %>>Ativo</option><option value="INACTIVE" <%= formData.status === 'INACTIVE' ? 'selected' : '' %>>Inativo</option></select></div>
+    <% } %>
+    <div class="form-field form-field--wide"><label for="description">Descrição <span>*</span></label><textarea id="description" name="description" rows="3" required><%= formData.description || '' %></textarea></div>
+</div>
+
+<div class="option-cards">
+    <label class="option-card"><input name="hasExpiration" type="checkbox" <%= formData.hasExpiration === true || formData.hasExpiration === 'on' ? 'checked' : '' %> /><span><strong>Controlar vencimento</strong><small>Exige data de validade e gera alertas.</small></span></label>
+    <label class="option-card"><input name="requiresPurchaseOrder" type="checkbox" <%= formData.requiresPurchaseOrder === true || formData.requiresPurchaseOrder === 'on' ? 'checked' : '' %> /><span><strong>Exigir pedido de compra</strong><small>Compara fornecedor e saldo no ERP simulado.</small></span></label>
+</div>
+
+<section class="form-section">
+    <div class="form-section__header"><div><span class="eyebrow">MODELO NOSQL</span><h2>Campos personalizados</h2><p>Defina atributos específicos deste tipo sem alterar os demais documentos.</p></div><button class="button button--secondary" type="button" data-add-custom-field>+ Adicionar campo</button></div>
+    <input type="hidden" name="customFieldsJson" id="customFieldsJson" />
+    <div class="dynamic-fields-editor" data-custom-fields-editor></div>
+    <script type="application/json" id="initialCustomFields"><%- serializeForHtml(initialCustomFields) %></script>
+</section>
+
+<section class="form-section">
+    <div class="form-section__header"><div><span class="eyebrow">AUTOMAÇÃO</span><h2>Regras de validação</h2><p>As regras condicionais de vencimento e pedido serão adicionadas automaticamente.</p></div></div>
+    <div class="check-grid">
+        <% validationRuleCatalog.forEach((rule) => { %>
+            <label class="check-card">
+                <input type="checkbox" name="validationRules" value="<%= rule.code %>" <%= selectedRules.includes(rule.code) || ['REQUIRED_FIELDS', 'DUPLICATE_DOCUMENT', 'SUPPLIER_ACTIVE', 'ISSUE_DATE_NOT_FUTURE'].includes(rule.code) ? 'checked' : '' %> />
+                <span><strong><%= rule.label %></strong><small><%= rule.department %> • prioridade <%= rule.severity.toLowerCase() %></small></span>
+            </label>
+        <% }) %>
+    </div>
+</section>

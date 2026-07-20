@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading"><div><a class="back-link" href="/documents">← Documentos</a><h1>Receber documento</h1><p>Cadastre manualmente ou simule a leitura automática de PDF e imagem.</p></div></div>
+        <% if (!documentTypes.length || !suppliers.length) { %>
+            <section class="panel"><%- include("../partials/empty-state", { heading: "Configuração incompleta", description: "É necessário ter ao menos um fornecedor e um tipo de documento ativos.", actionHref: !suppliers.length ? '/suppliers/new' : '/document-types/new', actionLabel: !suppliers.length ? 'Cadastrar fornecedor' : 'Cadastrar tipo', icon: '⚙' }) %></section>
+        <% } else { %>
+            <form class="document-form" action="/documents" method="POST" data-document-form>
+                <%- include("../partials/document-form", { formData, documentTypes, suppliers, purchaseOrders }) %>
+                <div class="form-actions form-actions--sticky"><a class="button button--ghost" href="/documents">Cancelar</a><button class="button button--secondary" type="submit" value="draft" data-submit-action="draft">Salvar rascunho</button><button class="button button--primary" type="submit" value="process" data-submit-action="process">Receber e validar</button></div>
+            </form>
+        <% } %>
+        <script src="/js/document-form.js" defer></script>
+        <%- include("../partials/page-end") %>
+    </body>
+</html>

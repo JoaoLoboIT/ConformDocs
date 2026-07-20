@@ -1,59 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading">
+            <div><span class="eyebrow">CADASTRO MESTRE</span><h1>Fornecedores</h1><p>Base de empresas habilitadas para pedidos e documentos.</p></div>
+            <a class="button button--primary" href="/suppliers/new">+ Novo fornecedor</a>
+        </div>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <form class="filter-bar" method="GET" action="/suppliers">
+            <input name="search" type="search" placeholder="Buscar por nome, CNPJ ou e-mail" value="<%= filters.search %>" />
+            <select name="status">
+                <option value="">Todos os status</option>
+                <option value="ACTIVE" <%= filters.status === 'ACTIVE' ? 'selected' : '' %>>Ativos</option>
+                <option value="INACTIVE" <%= filters.status === 'INACTIVE' ? 'selected' : '' %>>Inativos</option>
+            </select>
+            <button class="button button--secondary" type="submit">Filtrar</button>
+            <a class="button button--text" href="/suppliers">Limpar</a>
+        </form>
 
-    <title><%= title %> | ConformDocs</title>
-  </head>
-
-  <body>
-    <main>
-      <a href="/">Voltar para o início</a>
-
-      <header>
-        <h1>Fornecedores</h1>
-
-        <a href="/suppliers/new"> Cadastrar fornecedor </a>
-      </header>
-
-      <% if (suppliers.length === 0) { %>
-      <p>Nenhum fornecedor cadastrado.</p>
-      <% } else { %>
-      <table>
-        <thead>
-          <tr>
-            <th>Razão social</th>
-            <th>Nome fantasia</th>
-            <th>CNPJ</th>
-            <th>E-mail</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <% suppliers.forEach((supplier) => { %>
-          <tr>
-            <td><%= supplier.legalName %></td>
-            <td><%= supplier.tradeName %></td>
-            <td><%= supplier.cnpj %></td>
-            <td><%= supplier.email %></td>
-            <td>
-              <%= supplier.status === "ACTIVE"
-                    ? "Ativo"
-                    : "Inativo"
-                %>
-            </td>
-            <td>
-              <a href="/suppliers/<%= supplier._id %>"> Ver detalhes </a>
-            </td>
-          </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <% } %>
-    </main>
-  </body>
+        <section class="panel">
+            <% if (suppliers.length === 0) { %>
+                <%- include("../partials/empty-state", { heading: "Nenhum fornecedor encontrado", description: "Cadastre uma empresa ou ajuste os filtros.", actionHref: "/suppliers/new", actionLabel: "Cadastrar fornecedor", icon: "◉" }) %>
+            <% } else { %>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>Fornecedor</th><th>CNPJ</th><th>Contato</th><th>Status</th><th>Cadastrado em</th><th></th></tr></thead>
+                        <tbody>
+                            <% suppliers.forEach((supplier) => { %>
+                                <tr>
+                                    <td><strong><%= supplier.tradeName %></strong><small><%= supplier.legalName %></small></td>
+                                    <td><%= formatCnpj(supplier.cnpj) %></td>
+                                    <td><%= supplier.email %><small><%= formatPhone(supplier.phone) %></small></td>
+                                    <td><span class="badge <%= statusClass(supplier.status) %>"><%= statusLabel(supplier.status) %></span></td>
+                                    <td><%= formatDate(supplier.createdAt) %></td>
+                                    <td><a class="table-link" href="/suppliers/<%= supplier._id %>">Ver detalhes →</a></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </section>
+        <%- include("../partials/page-end") %>
+    </body>
 </html>

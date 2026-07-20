@@ -1,105 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8" />
-
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-        />
-
-        <title><%= title %> | ConformDocs</title>
-    </head>
-
+    <%- include("../partials/head", { title }) %>
     <body>
-        <main>
-            <a href="/purchase-orders">
-                Voltar para pedidos de compra
-            </a>
-
-            <h1>Pedido <%= purchaseOrder.orderNumber %></h1>
-
-            <dl>
-                <div>
-                    <dt>Fornecedor</dt>
-                    <dd>
-                        <%= purchaseOrder.supplierSnapshot.tradeName %>
-                    </dd>
-                </div>
-
-                <div>
-                    <dt>CNPJ do fornecedor</dt>
-                    <dd>
-                        <%= purchaseOrder.supplierSnapshot.cnpj %>
-                    </dd>
-                </div>
-
-                <div>
-                    <dt>Data de emissão</dt>
-                    <dd>
-                        <%= new Date(
-                            purchaseOrder.issueDate
-                        ).toLocaleDateString("pt-BR") %>
-                    </dd>
-                </div>
-
-                <div>
-                    <dt>Centro de custo</dt>
-                    <dd><%= purchaseOrder.costCenter %></dd>
-                </div>
-
-                <div>
-                    <dt>Descrição</dt>
-                    <dd><%= purchaseOrder.description %></dd>
-                </div>
-
-                <div>
-                    <dt>Valor total</dt>
-                    <dd>
-                        <%= purchaseOrder.totalAmount.toLocaleString(
-                            "pt-BR",
-                            {
-                                style: "currency",
-                                currency: "BRL"
-                            }
-                        ) %>
-                    </dd>
-                </div>
-
-                <div>
-                    <dt>Saldo disponível</dt>
-                    <dd>
-                        <%= purchaseOrder.remainingAmount.toLocaleString(
-                            "pt-BR",
-                            {
-                                style: "currency",
-                                currency: "BRL"
-                            }
-                        ) %>
-                    </dd>
-                </div>
-
-                <div>
-                    <dt>Status</dt>
-                    <dd><%= purchaseOrder.status %></dd>
-                </div>
-            </dl>
-
-            <section>
-                <h2>Histórico de status</h2>
-
-                <ul>
-                    <% purchaseOrder.statusHistory.forEach((history) => { %>
-                        <li>
-                            <strong><%= history.status %></strong>
-                            —
-                            <%= new Date(
-                                history.changedAt
-                            ).toLocaleString("pt-BR") %>
-                        </li>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading">
+            <div><a class="back-link" href="/purchase-orders">← Pedidos de compra</a><span class="eyebrow">REGISTRO DO ERP</span><h1><%= purchaseOrder.orderNumber %></h1><p><%= purchaseOrder.description %></p></div>
+            <span class="badge badge--large <%= statusClass(purchaseOrder.status) %>"><%= statusLabel(purchaseOrder.status) %></span>
+        </div>
+        <section class="detail-grid detail-grid--four">
+            <article class="panel detail-card"><span>Valor total</span><strong><%= formatCurrency(purchaseOrder.totalAmount) %></strong></article>
+            <article class="panel detail-card detail-card--accent"><span>Saldo disponível</span><strong><%= formatCurrency(purchaseOrder.remainingAmount) %></strong></article>
+            <article class="panel detail-card"><span>Utilizado</span><strong><%= formatCurrency(purchaseOrder.totalAmount - purchaseOrder.remainingAmount) %></strong></article>
+            <article class="panel detail-card"><span>Data de emissão</span><strong><%= formatDate(purchaseOrder.issueDate) %></strong></article>
+        </section>
+        <section class="dashboard-grid">
+            <article class="panel">
+                <div class="panel__header"><div><span class="eyebrow">VÍNCULO</span><h2>Dados do fornecedor</h2></div><a href="/suppliers/<%= purchaseOrder.supplierId %>">Abrir fornecedor</a></div>
+                <dl class="definition-grid definition-grid--single">
+                    <div><dt>Nome fantasia</dt><dd><%= purchaseOrder.supplierSnapshot.tradeName %></dd></div>
+                    <div><dt>Razão social</dt><dd><%= purchaseOrder.supplierSnapshot.legalName %></dd></div>
+                    <div><dt>CNPJ</dt><dd><%= formatCnpj(purchaseOrder.supplierSnapshot.cnpj) %></dd></div>
+                    <div><dt>Centro de custo</dt><dd><%= purchaseOrder.costCenter %></dd></div>
+                </dl>
+            </article>
+            <article class="panel">
+                <div class="panel__header"><div><span class="eyebrow">HISTÓRICO</span><h2>Mudanças de status</h2></div></div>
+                <div class="timeline">
+                    <% purchaseOrder.statusHistory.slice().reverse().forEach((history) => { %>
+                        <div class="timeline__item"><span></span><div><strong><%= statusLabel(history.status) %></strong><p><%= history.note || 'Status atualizado.' %></p><small><%= formatDateTime(history.changedAt) %></small></div></div>
                     <% }) %>
-                </ul>
+                </div>
+            </article>
+        </section>
+        <% if (purchaseOrder.linkedDocuments?.length) { %>
+            <section class="panel">
+                <div class="panel__header"><div><span class="eyebrow">CONSUMO</span><h2>Documentos vinculados</h2></div></div>
+                <div class="table-wrapper"><table class="data-table"><thead><tr><th>Documento</th><th>Valor aplicado</th><th>Data</th><th></th></tr></thead><tbody>
+                    <% purchaseOrder.linkedDocuments.forEach((linked) => { %><tr><td><%= linked.documentNumber %></td><td><%= formatCurrency(linked.amount) %></td><td><%= formatDateTime(linked.appliedAt) %></td><td><a class="table-link" href="/documents/<%= linked.documentId %>">Abrir →</a></td></tr><% }) %>
+                </tbody></table></div>
             </section>
-        </main>
+        <% } %>
+        <% if (['OPEN', 'PARTIALLY_USED'].includes(purchaseOrder.status)) { %>
+            <section class="panel danger-zone">
+                <div><span class="eyebrow">AÇÃO ADMINISTRATIVA</span><h2>Cancelar pedido</h2><p>O histórico será preservado e o pedido deixará de aparecer como disponível.</p></div>
+                <form action="/purchase-orders/<%= purchaseOrder._id %>/cancel" method="POST" data-confirm="Deseja realmente cancelar este pedido?"><input name="reason" type="text" placeholder="Motivo do cancelamento" required /><button class="button button--danger" type="submit">Cancelar pedido</button></form>
+            </section>
+        <% } %>
+        <%- include("../partials/page-end") %>
     </body>
 </html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading"><div><a class="back-link" href="/document-types">← Tipos de documento</a><h1>Editar <%= formData.name || 'tipo' %></h1><p>Alterações valem para novos documentos; os antigos preservam o snapshot.</p></div></div>
+        <section class="panel form-panel">
+            <form action="/document-types/<%= formData._id %>/edit" method="POST" data-document-type-form>
+                <%- include("../partials/document-type-form", { formData, validationRuleCatalog, isEdit: true }) %>
+                <div class="form-actions"><a class="button button--ghost" href="/document-types">Cancelar</a><button class="button button--primary" type="submit">Salvar configuração</button></div>
+            </form>
+        </section>
+        <script src="/js/document-type-form.js" defer></script>
+        <%- include("../partials/page-end") %>
+    </body>
+</html>

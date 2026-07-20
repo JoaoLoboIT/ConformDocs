@@ -1,0 +1,8 @@
+<div class="empty-state">
+    <div class="empty-state__icon"><%= typeof icon !== 'undefined' ? icon : '◇' %></div>
+    <h2><%= heading %></h2>
+    <p><%= description %></p>
+    <% if (typeof actionHref !== 'undefined' && actionHref) { %>
+        <a class="button button--primary" href="<%= actionHref %>"><%= actionLabel %></a>
+    <% } %>
+</div>

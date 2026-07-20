@@ -1,150 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8" />
-
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-        />
-
-        <title><%= title %> | ConformDocs</title>
-    </head>
-
+    <%- include("../partials/head", { title }) %>
     <body>
-        <main>
-            <a href="/purchase-orders">
-                Voltar para pedidos de compra
-            </a>
-
-            <h1>Cadastrar pedido de compra</h1>
-
-            <% if (errorMessage) { %>
-                <p role="alert">
-                    <strong>Erro:</strong>
-                    <%= errorMessage %>
-                </p>
-            <% } %>
-
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading"><div><a class="back-link" href="/purchase-orders">← Pedidos de compra</a><h1>Cadastrar pedido</h1><p>Simule um registro importado do ERP corporativo.</p></div></div>
+        <section class="panel form-panel">
             <% if (suppliers.length === 0) { %>
-                <p>
-                    Não existem fornecedores ativos. Cadastre ou ative
-                    um fornecedor antes de criar um pedido.
-                </p>
-
-                <a href="/suppliers/new">
-                    Cadastrar fornecedor
-                </a>
+                <%- include("../partials/empty-state", { heading: "Nenhum fornecedor ativo", description: "Ative ou cadastre um fornecedor antes de criar o pedido.", actionHref: "/suppliers/new", actionLabel: "Cadastrar fornecedor", icon: "◉" }) %>
             <% } else { %>
                 <form action="/purchase-orders" method="POST">
-                    <div>
-                        <label for="orderNumber">
-                            Número do pedido
-                        </label>
-
-                        <input
-                            id="orderNumber"
-                            name="orderNumber"
-                            type="text"
-                            value="<%= formData.orderNumber || '' %>"
-                            placeholder="Ex.: PC-2026-001"
-                            required
-                        />
+                    <div class="form-grid">
+                        <div class="form-field"><label for="orderNumber">Número do pedido <span>*</span></label><input id="orderNumber" name="orderNumber" type="text" value="<%= formData.orderNumber || '' %>" placeholder="PC-2026-001" required /></div>
+                        <div class="form-field"><label for="supplierId">Fornecedor <span>*</span></label><select id="supplierId" name="supplierId" required><option value="">Selecione</option><% suppliers.forEach((supplier) => { %><option value="<%= supplier._id %>" <%= formData.supplierId === supplier._id.toString() ? 'selected' : '' %>><%= supplier.tradeName %> — <%= formatCnpj(supplier.cnpj) %></option><% }) %></select></div>
+                        <div class="form-field"><label for="issueDate">Data de emissão <span>*</span></label><input id="issueDate" name="issueDate" type="date" value="<%= formData.issueDate || '' %>" required /></div>
+                        <div class="form-field"><label for="costCenter">Centro de custo <span>*</span></label><input id="costCenter" name="costCenter" type="text" value="<%= formData.costCenter || '' %>" placeholder="Tecnologia" required /></div>
+                        <div class="form-field"><label for="totalAmount">Valor total <span>*</span></label><input id="totalAmount" name="totalAmount" type="number" min="0.01" step="0.01" value="<%= formData.totalAmount || '' %>" required /></div>
+                        <div class="form-field form-field--wide"><label for="description">Descrição <span>*</span></label><textarea id="description" name="description" rows="4" required><%= formData.description || '' %></textarea></div>
                     </div>
-
-                    <div>
-                        <label for="supplierId">
-                            Fornecedor
-                        </label>
-
-                        <select
-                            id="supplierId"
-                            name="supplierId"
-                            required
-                        >
-                            <option value="">
-                                Selecione um fornecedor
-                            </option>
-
-                            <% suppliers.forEach((supplier) => { %>
-                                <option
-                                    value="<%= supplier._id %>"
-                                    <%= formData.supplierId ===
-                                    supplier._id.toString()
-                                        ? "selected"
-                                        : ""
-                                    %>
-                                >
-                                    <%= supplier.tradeName %>
-                                    — <%= supplier.cnpj %>
-                                </option>
-                            <% }) %>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="issueDate">
-                            Data de emissão
-                        </label>
-
-                        <input
-                            id="issueDate"
-                            name="issueDate"
-                            type="date"
-                            value="<%= formData.issueDate || '' %>"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label for="costCenter">
-                            Centro de custo
-                        </label>
-
-                        <input
-                            id="costCenter"
-                            name="costCenter"
-                            type="text"
-                            value="<%= formData.costCenter || '' %>"
-                            placeholder="Ex.: Tecnologia"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label for="description">
-                            Descrição
-                        </label>
-
-                        <textarea
-                            id="description"
-                            name="description"
-                            rows="4"
-                            required
-                        ><%= formData.description || '' %></textarea>
-                    </div>
-
-                    <div>
-                        <label for="totalAmount">
-                            Valor total
-                        </label>
-
-                        <input
-                            id="totalAmount"
-                            name="totalAmount"
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            value="<%= formData.totalAmount || '' %>"
-                            required
-                        />
-                    </div>
-
-                    <button type="submit">
-                        Cadastrar pedido
-                    </button>
+                    <div class="form-actions"><a class="button button--ghost" href="/purchase-orders">Cancelar</a><button class="button button--primary" type="submit">Cadastrar pedido</button></div>
                 </form>
             <% } %>
-        </main>
+        </section>
+        <%- include("../partials/page-end") %>
     </body>
 </html>

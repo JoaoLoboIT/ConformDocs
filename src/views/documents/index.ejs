@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <%- include("../partials/head", { title }) %>
+    <body>
+        <%- include("../partials/page-start", { title }) %>
+        <div class="page-heading"><div><span class="eyebrow">CENTRAL DOCUMENTAL</span><h1>Documentos</h1><p>Da captura à validação, aprovação e escrituração.</p></div><a class="button button--primary" href="/documents/new">+ Receber documento</a></div>
+        <form class="filter-bar filter-bar--multi" method="GET" action="/documents">
+            <input name="search" type="search" placeholder="Número, tipo ou fornecedor" value="<%= filters.search %>" />
+            <select name="status"><option value="">Todos os status</option><% ['DRAFT','RECEIVED','WITH_DIVERGENCE','AWAITING_APPROVAL','APPROVED','REJECTED','COMPLETED'].forEach((status) => { %><option value="<%= status %>" <%= filters.status === status ? 'selected' : '' %>><%= statusLabel(status) %></option><% }) %></select>
+            <select name="typeId"><option value="">Todos os tipos</option><% documentTypes.forEach((type) => { %><option value="<%= type._id %>" <%= filters.typeId === type._id.toString() ? 'selected' : '' %>><%= type.name %></option><% }) %></select>
+            <select name="supplierId"><option value="">Todos os fornecedores</option><% suppliers.forEach((supplier) => { %><option value="<%= supplier._id %>" <%= filters.supplierId === supplier._id.toString() ? 'selected' : '' %>><%= supplier.tradeName %></option><% }) %></select>
+            <select name="expiration"><option value="">Qualquer validade</option><option value="expired" <%= filters.expiration === 'expired' ? 'selected' : '' %>>Vencidos</option><option value="next30" <%= filters.expiration === 'next30' ? 'selected' : '' %>>Vencem em 30 dias</option></select>
+            <button class="button button--secondary" type="submit">Filtrar</button><a class="button button--text" href="/documents">Limpar</a>
+        </form>
+        <section class="panel">
+            <% if (documents.length === 0) { %>
+                <%- include("../partials/empty-state", { heading: "Nenhum documento encontrado", description: "Receba um documento ou ajuste os filtros da consulta.", actionHref: "/documents/new", actionLabel: "Receber documento", icon: "◆" }) %>
+            <% } else { %>
+                <div class="table-wrapper"><table class="data-table"><thead><tr><th>Documento</th><th>Tipo</th><th>Fornecedor</th><th>Emissão / validade</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody>
+                    <% documents.forEach((document) => { %>
+                        <tr>
+                            <td><strong><%= document.documentNumber %></strong><small><%= sourceLabel(document.source) %></small></td>
+                            <td><%= document.typeSnapshot.name %><small><%= document.typeSnapshot.code %></small></td>
+                            <td><%= document.supplierSnapshot.tradeName %><small><%= formatCnpj(document.supplierSnapshot.cnpj) %></small></td>
+                            <td><%= formatDate(document.issueDate) %><small><%= document.expirationDate ? `Validade: ${formatDate(document.expirationDate)}` : 'Sem vencimento' %></small></td>
+                            <td><%= document.amount !== null ? formatCurrency(document.amount) : '—' %></td>
+                            <td><span class="badge <%= statusClass(document.status) %>"><%= statusLabel(document.status) %></span></td>
+                            <td><a class="table-link" href="/documents/<%= document._id %>">Abrir →</a></td>
+                        </tr>
+                    <% }) %>
+                </tbody></table></div>
+            <% } %>
+        </section>
+        <%- include("../partials/page-end") %>
+    </body>
+</html>
