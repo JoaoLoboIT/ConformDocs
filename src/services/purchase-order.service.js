@@ -1,86 +1,92 @@
 import {
-    findAllPurchaseOrders,
-    findPurchaseOrderByNumber,
-    insertPurchaseOrder
+  findAllPurchaseOrders,
+  findPurchaseOrderById,
+  findPurchaseOrderByNumber,
+  insertPurchaseOrder,
 } from "../repositories/purchase-order.repository.js";
 
 import { getSupplierById } from "./supplier.service.js";
 
 export async function listPurchaseOrders() {
-    return findAllPurchaseOrders();
+  return findAllPurchaseOrders();
 }
 
 export async function createPurchaseOrder(data) {
-    const orderNumber = data.orderNumber?.trim().toUpperCase();
-    const supplierId = data.supplierId;
-    const costCenter = data.costCenter?.trim();
-    const description = data.description?.trim();
-    const totalAmount = Number(data.totalAmount);
-    const issueDate = new Date(data.issueDate);
+  const orderNumber = data.orderNumber?.trim().toUpperCase();
+  const supplierId = data.supplierId;
+  const costCenter = data.costCenter?.trim();
+  const description = data.description?.trim();
+  const totalAmount = Number(data.totalAmount);
+  const issueDate = new Date(data.issueDate);
 
-    if (
-        !orderNumber ||
-        !supplierId ||
-        !costCenter ||
-        !description ||
-        !data.issueDate
-    ) {
-        throw new Error("Todos os campos são obrigatórios.");
-    }
+  if (
+    !orderNumber ||
+    !supplierId ||
+    !costCenter ||
+    !description ||
+    !data.issueDate
+  ) {
+    throw new Error("Todos os campos são obrigatórios.");
+  }
 
-    if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
-        throw new Error("O valor total deve ser maior que zero.");
-    }
+  if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
+    throw new Error("O valor total deve ser maior que zero.");
+  }
 
-    if (Number.isNaN(issueDate.getTime())) {
-        throw new Error("A data de emissão é inválida.");
-    }
+  if (Number.isNaN(issueDate.getTime())) {
+    throw new Error("A data de emissão é inválida.");
+  }
 
-    const existingPurchaseOrder =
-        await findPurchaseOrderByNumber(orderNumber);
+  const existingPurchaseOrder = await findPurchaseOrderByNumber(orderNumber);
 
-    if (existingPurchaseOrder) {
-        throw new Error(
-            "Já existe um pedido com este número."
-        );
-    }
+  if (existingPurchaseOrder) {
+    throw new Error("Já existe um pedido com este número.");
+  }
 
-    const supplier = await getSupplierById(supplierId);
+  const supplier = await getSupplierById(supplierId);
 
-    if (supplier.status !== "ACTIVE") {
-        throw new Error(
-            "O fornecedor selecionado está inativo."
-        );
-    }
+  if (supplier.status !== "ACTIVE") {
+    throw new Error("O fornecedor selecionado está inativo.");
+  }
 
-    const currentDate = new Date();
+  const currentDate = new Date();
 
-    return insertPurchaseOrder({
-        orderNumber,
+  return insertPurchaseOrder({
+    orderNumber,
 
-        supplierId: supplier._id,
+    supplierId: supplier._id,
 
-        supplierSnapshot: {
-            tradeName: supplier.tradeName,
-            legalName: supplier.legalName,
-            cnpj: supplier.cnpj
-        },
+    supplierSnapshot: {
+      tradeName: supplier.tradeName,
+      legalName: supplier.legalName,
+      cnpj: supplier.cnpj,
+    },
 
-        issueDate,
-        costCenter,
-        description,
-        totalAmount,
-        remainingAmount: totalAmount,
+    issueDate,
+    costCenter,
+    description,
+    totalAmount,
+    remainingAmount: totalAmount,
+    status: "OPEN",
+
+    statusHistory: [
+      {
         status: "OPEN",
+        changedAt: currentDate,
+      },
+    ],
 
-        statusHistory: [
-            {
-                status: "OPEN",
-                changedAt: currentDate
-            }
-        ],
+    createdAt: currentDate,
+    updatedAt: currentDate,
+  });
+}
 
-        createdAt: currentDate,
-        updatedAt: currentDate
-    });
+export async function getPurchaseOrderById(id) {
+  const purchaseOrder = await findPurchaseOrderById(id);
+
+  if (!purchaseOrder) {
+    throw new Error("Pedido de compra não encontrado.");
+  }
+
+  return purchaseOrder;
 }

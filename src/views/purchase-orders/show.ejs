@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+
+        <title><%= title %> | ConformDocs</title>
+    </head>
+
+    <body>
+        <main>
+            <a href="/purchase-orders">
+                Voltar para pedidos de compra
+            </a>
+
+            <h1>Pedido <%= purchaseOrder.orderNumber %></h1>
+
+            <dl>
+                <div>
+                    <dt>Fornecedor</dt>
+                    <dd>
+                        <%= purchaseOrder.supplierSnapshot.tradeName %>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>CNPJ do fornecedor</dt>
+                    <dd>
+                        <%= purchaseOrder.supplierSnapshot.cnpj %>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Data de emissão</dt>
+                    <dd>
+                        <%= new Date(
+                            purchaseOrder.issueDate
+                        ).toLocaleDateString("pt-BR") %>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Centro de custo</dt>
+                    <dd><%= purchaseOrder.costCenter %></dd>
+                </div>
+
+                <div>
+                    <dt>Descrição</dt>
+                    <dd><%= purchaseOrder.description %></dd>
+                </div>
+
+                <div>
+                    <dt>Valor total</dt>
+                    <dd>
+                        <%= purchaseOrder.totalAmount.toLocaleString(
+                            "pt-BR",
+                            {
+                                style: "currency",
+                                currency: "BRL"
+                            }
+                        ) %>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Saldo disponível</dt>
+                    <dd>
+                        <%= purchaseOrder.remainingAmount.toLocaleString(
+                            "pt-BR",
+                            {
+                                style: "currency",
+                                currency: "BRL"
+                            }
+                        ) %>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Status</dt>
+                    <dd><%= purchaseOrder.status %></dd>
+                </div>
+            </dl>
+
+            <section>
+                <h2>Histórico de status</h2>
+
+                <ul>
+                    <% purchaseOrder.statusHistory.forEach((history) => { %>
+                        <li>
+                            <strong><%= history.status %></strong>
+                            —
+                            <%= new Date(
+                                history.changedAt
+                            ).toLocaleString("pt-BR") %>
+                        </li>
+                    <% }) %>
+                </ul>
+            </section>
+        </main>
+    </body>
+</html>

@@ -1,4 +1,5 @@
 import { getDatabase } from "../config/database.js";
+import { ObjectId } from "mongodb";
 
 const COLLECTION_NAME = "purchaseOrders";
 
@@ -31,4 +32,18 @@ export async function findPurchaseOrderByNumber(orderNumber) {
     return database
         .collection(COLLECTION_NAME)
         .findOne({ orderNumber });
+}
+
+export async function findPurchaseOrderById(id) {
+    const database = getDatabase();
+
+    if (!ObjectId.isValid(id)) {
+        return null;
+    }
+
+    return database
+        .collection(COLLECTION_NAME)
+        .findOne({
+            _id: new ObjectId(id)
+        });
 }

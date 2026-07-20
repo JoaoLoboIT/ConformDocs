@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import {
     showCreatePurchaseOrderPage,
+    showPurchaseOrderDetailsPage,
     showPurchaseOrdersPage,
     storePurchaseOrder
 } from "../controllers/purchase-order.controller.js";
@@ -16,6 +17,11 @@ router.get(
 router.get(
     "/purchase-orders",
     showPurchaseOrdersPage
+);
+
+router.get(
+    "/purchase-orders/:id",
+    showPurchaseOrderDetailsPage
 );
 
 router.post(
